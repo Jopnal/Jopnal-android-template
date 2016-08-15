@@ -1,7 +1,7 @@
 call android update project --target "android-18" --subprojects --path .
 call :CHECK_FAIL
 call ant clean
-call ant release
+call ant debug
 call install_adb.bat
 call run_adb.bat
 
