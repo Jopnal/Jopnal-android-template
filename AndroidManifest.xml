@@ -21,7 +21,8 @@
     <activity android:name="android.app.NativeActivity"
               android:label="@string/app_name"
               android:icon="@drawable/jopnal"
-              android:configChanges="keyboardHidden|orientation|screenSize" >
+              android:configChanges="keyboardHidden|orientation|screenSize"
+              android:screenOrientation="landscape" >
 
         <meta-data android:name="android.app.lib_name" android:value="jopnal-activity" />
         <meta-data android:name="jopnal.app.lib_name" android:value="jopnal-example" />
