@@ -1,4 +1,4 @@
-This template project is to help new developers starting game development on Android, using the [Jopnal](https://github.com/Jopnal/Jopnal) engine.
+This template project is meant to help new developers starting game development on Android, using the [Jopnal](https://github.com/Jopnal/Jopnal) engine.
 
 ## Prerequisites
 
