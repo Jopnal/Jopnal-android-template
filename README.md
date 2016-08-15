@@ -1,4 +1,6 @@
-### Prerequisites
+This template project is to help new developers starting game development on Android, using the [Jopnal](https://github.com/Jopnal/Jopnal) engine.
+
+## Prerequisites
 
 In order to use this template, you'll need to have the following tools installed:
 
@@ -16,7 +18,7 @@ Once installed, add the following paths to your system PATH:
 - [Path to ANT]/bin
 - [Path to NDK]
 
-### Build, install and run
+## Build, install and run
 
 First of all, make sure your device is connected and has USB debugging configured.
 [*USB debugging?*](http://www.howtogeek.com/129728/how-to-access-the-developer-options-menu-and-enable-usb-debugging-on-android-4.2/)
