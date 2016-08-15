@@ -1,0 +1,1 @@
+call adb install -r bin/NativeActivity-debug.apk
