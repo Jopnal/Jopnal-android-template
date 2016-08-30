@@ -7,7 +7,7 @@ In order to use this template, you'll need to have the following tools installed
 - [Android SDK](https://developer.android.com/studio/index.html)
   - With API level 18 (or greater) images installed
   - You don't need Android Studio necessarily, just the command line tools
-- [Android NDK](https://developer.android.com/ndk/downloads/index.html) (r12b recommended)
+- [Android NDK](https://developer.android.com/ndk/downloads/index.html) (version r12b required)
 - [Apache ANT](http://ant.apache.org/bindownload.cgi)
 
 Once installed, add the following paths to your system PATH:
@@ -17,6 +17,8 @@ Once installed, add the following paths to your system PATH:
 - [Path to SDK]/platform-tools
 - [Path to ANT]/bin
 - [Path to NDK]
+
+**Make sure that the path to the NDK doesn't contain any spaces!**
 
 ## Build, install and run
 
