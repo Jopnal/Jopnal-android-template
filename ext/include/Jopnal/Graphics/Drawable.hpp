@@ -26,7 +26,6 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/Color.hpp>
-#include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/RenderPass.hpp>
 #include <Jopnal/Utility/Json.hpp>
 #include <glm/mat4x4.hpp>
@@ -39,10 +38,16 @@
 
 namespace jop
 {
+    namespace detail
+    {
+        class CullerComponent;
+    }
     class ShaderProgram;
     class LightSource;
     class LightContainer;
     class Renderer;
+    class Material;
+    class Mesh;
 
     class JOP_API Drawable : public Component
     {
@@ -50,36 +55,50 @@ namespace jop
 
         JOP_GENERIC_COMPONENT_CLONE(Drawable);
 
+        friend class ShaderAssembler;
+
     public:
     
+        /// Drawable flags
+        ///
         enum Flag : uint32
         {
-            ReceiveLights   = 1,
-            ReceiveShadows  = 1 << 1,
-            CastShadows     = 1 << 2,
-            Reflected       = 1 << 3
+            ReceiveLights   = 1,        ///< Receive lights?
+            ReceiveShadows  = 1 << 1,   ///< Receive shadows?
+            CastShadows     = 1 << 2,   ///< Cast shadows?
+            Reflected       = 1 << 3    ///< Reflect on dynamic environment maps?
         };
 
+        /// Attribute flags
+        ///
         struct Attribute
         {
             enum : uint64
             {
-
-
                 __SkySphere = 1 << 10,
                 __SkyBox    = __SkySphere << 1
             };
         };
 
+        /// Projection info
+        ///
         struct JOP_API ProjectionInfo
         {
             JOP_DISALLOW_COPY_MOVE(ProjectionInfo);
 
+        public:
+
+            /// \brief Constructor
+            ///
+            /// \param view The view matrix
+            /// \param proj The projection matrix
+            /// \param camPos The camera position
+            ///
             ProjectionInfo(const glm::mat4& view, const glm::mat4& proj, const glm::vec3& camPos);
 
-            const glm::mat4& viewMatrix;
-            const glm::mat4& projectionMatrix;
-            const glm::vec3& cameraPosition;
+            const glm::mat4& viewMatrix;        ///< View matrix
+            const glm::mat4& projectionMatrix;  ///< Projection matrix
+            const glm::vec3& cameraPosition;    ///< Camera position
         };
 
     public:
@@ -88,22 +107,27 @@ namespace jop
         ///
         /// \param object Reference to the object this drawable will be bound to
         /// \param renderer Reference to the renderer
-        /// \param ID Component identifier
+        /// \param cull Should this drawable be culled?
         ///
-        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass = RenderPass::Pass::BeforePost);
+        Drawable(Object& object, Renderer& renderer, const bool cull = true);
 
-        Drawable(Object& object, RenderPass& pass);
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const bool)
+        ///
+        /// \param pass The render pass type
+        /// \param weight The render pass weight
+        ///
+        Drawable(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull = true);
 
         /// \brief Virtual destructor
         ///
         virtual ~Drawable() override;
 
 
-        /// \brief Base draw function
-        ///
-        /// This will use the shader bound to this drawable.
+        void update(const float deltaTime) override;
+
+        /// \brief Draw function
         /// 
-        /// \param camera The camera to use
+        /// \param proj The projection info
         /// \param lights The light container
         ///
         virtual void draw(const ProjectionInfo& proj, const LightContainer& lights) const;
@@ -114,10 +138,11 @@ namespace jop
         ///
         Renderer& getRendrer();
 
-        /// \copydoc getRenderer()
+        /// \brief Get the renderer this drawable is bound to
+        ///
+        /// \return Reference to the renderer
         ///
         const Renderer& getRenderer() const;
-
 
         /// \brief Set the render group
         ///
@@ -135,76 +160,173 @@ namespace jop
         ///
         uint8 getRenderGroup() const;
 
-
-        /// \brief Set the model
+        /// \brief Set the model (mesh & material)
         ///
-        /// The model will be copied.
-        ///
-        /// \param model Reference to the model
-        ///
-        /// \comm setModel
+        /// \param mesh Reference to the mesh
+        /// \param material Reference to the material
         ///
         /// \return Reference to self
         ///
-        Drawable& setModel(const Model& model);
-
-        /// \brief Get the model
+        /// \comm setModel
         ///
-        /// \return Reference to the model
-        ///
-        Model& getModel();
+        Drawable& setModel(const Mesh& mesh, const Material& material);
 
-        /// \copydoc getModel()
+        /// \brief Set the mesh
         ///
-        const Model& getModel() const;
+        /// \param mesh Reference to the mesh
+        ///
+        /// \return Reference to self
+        ///
+        Drawable& setMesh(const Mesh& mesh);
 
+        /// \brief Set the material
+        ///
+        /// \param material Reference to the material
+        ///
+        /// \return Reference to self
+        ///
+        Drawable& setMaterial(const Material& material);
+
+        /// \brief Get the mesh
+        ///
+        /// \return Reference to the mesh. nullptr if none bound
+        ///
+        const Mesh* getMesh() const;
+
+        /// \brief Get the material
+        ///
+        /// \return Reference to the material. nullptr if none bound
+        ///
+        const Material* getMaterial() const;
+
+        /// \brief Set the color
+        ///
+        /// This sets the drawable-specific color to be used as a base.
+        /// If the bound material has a texture, the color will be used
+        /// as a multiplier. The default color is white with an alpha of 1.
+        ///
+        /// \param color The color to set
+        ///
+        /// \return Reference to self
+        ///
         Drawable& setColor(const Color& color);
 
+        /// \brief Get the color
+        ///
+        /// \return Reference to the color
+        ///
+        /// \see setColor()
+        ///
         const Color& getColor() const;
 
+        /// \brief Get the local bounds
+        ///
+        /// This is the same as calling %getModel().%getMesh()->%getBounds().
+        ///
+        /// \return The local bounds
+        ///
         const std::pair<glm::vec3, glm::vec3>& getLocalBounds() const;
 
-        const std::pair<glm::vec3, glm::vec3>& getGlobalBounds() const;
+        /// \brief Get the global bounds
+        ///
+        /// This will apply the current transformation to the local bounds and
+        /// then return them.
+        ///
+        /// \return The global bounds
+        ///
+        std::pair<glm::vec3, glm::vec3> getGlobalBounds() const;
 
+        /// \brief Set flags
+        ///
+        /// \param flags The flags to set
+        ///
+        /// \return Reference to self
+        ///
+        /// \see Flag
+        ///
         Drawable& setFlags(const uint32 flags);
 
+        /// \brief Check if this drawable has a flag
+        ///
+        /// \param flag The flag to check
+        ///
+        /// \return True if this drawable has the flag
+        ///
+        /// \see Flag
+        ///
         bool hasFlag(const uint32 flag) const;
 
-        Drawable& setAttributes(const uint64 attributes);
+        /// \brief Get the current shader
+        ///
+        /// \return Reference to the shader
+        ///
+        ShaderProgram& getShader() const;
 
-        Drawable& addAttributes(const uint64 attributes);
+        /// \brief Set an override shader
+        ///
+        /// \param shader The override shader
+        ///
+        /// \see removeOverrideShader()
+        ///
+        void setOverrideShader(ShaderProgram& shader);
 
+        /// \brief Remove the override shader if one is bound
+        ///
+        /// \see setOverrideShader()
+        /// 
+        void removeOverrideShader();
+
+        /// \brief Check if using an override shader
+        ///
+        /// \return True if using an override shader
+        ///
+        bool hasOverrideShader() const;
+
+        /// \copydoc Material::getAttributes()
+        ///
         uint64 getAttributes() const;
 
-        bool hasAttribute(const uint64 attribute) const;
+        /// \brief Check if this drawable is translucent
+        ///
+        /// \return True if translucent
+        ///
+        bool hasAlpha() const;
 
-        static void getShaderPreprocessorDef(const uint64 attribs, std::string& str);
+        /// \brief Check is culling has been turned on for this drawable
+        ///
+        /// \return True if culling is enabled
+        ///
+        bool isCulled() const;
 
     protected:
 
+        /// \copydoc Component::receiveMessage()
+        ///
         virtual Message::Result receiveMessage(const Message& message) override;
 
-        ShaderProgram& getShader() const;
+    protected:
+
+        uint64 m_attributes;                            ///< Attribute flags
 
     private:
 
-        Color m_color;
-        Model m_model;                          ///< The bound model
-        mutable WeakReference<ShaderProgram> m_shader;  ///< The bound shader
-        uint64 m_attributes;
-        Renderer& m_rendererRef;                ///< Reference to the renderer
-        const RenderPass::Pass m_pass;
-        uint32 m_flags;                         ///< Property flags
-        mutable std::pair<glm::vec3, glm::vec3> m_globalBounds;
-        uint8 m_renderGroup;                    ///< The render group
-        mutable bool m_updateShader;
-        mutable bool m_updateBounds;
+        static std::string getShaderPreprocessorDef(const uint64 attributes);
+
+
+        Color m_color;                                      ///< Color specific to this drawable
+        WeakReference<const Mesh> m_mesh;                   ///< The bound mesh
+        WeakReference<const Material> m_material;           ///< The bound material
+        mutable WeakReference<ShaderProgram> m_shader;      ///< The bound shader (override)
+        std::unique_ptr<detail::CullerComponent> m_culler;  ///< Culler
+        Renderer& m_rendererRef;                            ///< Reference to the renderer
+        const RenderPass::Pass m_pass;                      ///< The render pass type
+        const uint32 m_weight;                              ///< Render pass weight
+        uint32 m_flags;                                     ///< Property flags
+        uint8 m_renderGroup;                                ///< The render group
     };
 }
 
-#endif
-
-/// \class Drawable
+/// \class jop::Drawable
 /// \ingroup graphics
-///
-/// #TODO Detailed description
+
+#endif

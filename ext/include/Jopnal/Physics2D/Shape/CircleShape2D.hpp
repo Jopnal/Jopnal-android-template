@@ -30,7 +30,7 @@
 
 namespace jop
 {
-    class JOP_API CircleShape2D final : public CollisionShape2D
+    class JOP_API CircleShape2D : public CollisionShape2D
     {
     public:
 
@@ -49,4 +49,8 @@ namespace jop
         bool load(const float radius);
     };
 }
+
+/// \class jop::CircleShape2D
+/// \ingroup physics2d
+
 #endif

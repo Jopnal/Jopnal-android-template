@@ -31,7 +31,7 @@
 
 namespace jop
 {
-    class JOP_API CapsuleShape final : public CollisionShape
+    class JOP_API CapsuleShape : public CollisionShape
     {
     public:
 
@@ -52,5 +52,8 @@ namespace jop
         bool load(const float radius, const float height);
     };
 }
+
+/// \class jop::CapsuleShape
+/// \ingroup physics
 
 #endif

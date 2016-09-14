@@ -34,7 +34,7 @@ namespace jop
 {
     class Transform;
 
-    class JOP_API CompoundShape final : public CollisionShape
+    class JOP_API CompoundShape : public CollisionShape
     {
     public:
 
@@ -53,5 +53,8 @@ namespace jop
         void addChild(CollisionShape& childShape, const Transform::Variables& childTransform);
     };
 }
+
+/// \class jop::CompoundShape
+/// \ingroup physics
 
 #endif

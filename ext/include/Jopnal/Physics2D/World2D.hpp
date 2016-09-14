@@ -72,17 +72,26 @@ namespace jop
         ///
         ~World2D() override;
 
+
         /// \brief Update the world
         ///
         /// \param deltaTime The delta time
         ///
         void update(const float deltaTime) override;
 
-        /// \brief Debug draw the world
-        ///
-        /// \param camera Camera to use
+        /// \copydoc World::draw()
         ///
         void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
+
+        /// \brief Set gravity for world
+        ///
+        /// \param gravity Vector holding amplitude of gravity in each dimension
+        ///
+        void setGravity(const glm::vec2& gravity);
+
+        /// \brief Get gravity for world
+        ///
+        glm::vec2 getGravity() const;
 
         /// \brief Check if a ray hits a collider and return the closest one
         ///
@@ -129,16 +138,20 @@ namespace jop
         ///
         /// \return True if enabled
         ///
-        bool debugMode() const;
+        bool debugMode() const;        
 
     private:
 
         Message::Result receiveMessage(const Message& message) override;
 
-        std::unique_ptr<detail::ContactListener2DImpl> m_contactListener; ///< Contact listener implementation
-        std::unique_ptr<b2World> m_worldData2D;     ///< The world data
-        std::unique_ptr<detail::DebugDraw> m_dd;
-        float m_step;
+        std::unique_ptr<detail::ContactListener2DImpl> m_contactListener;   ///< Contact listener implementation
+        std::unique_ptr<b2World> m_worldData2D;                             ///< The world data
+        std::unique_ptr<detail::DebugDraw> m_dd;                            ///< Debug drawer
+        float m_step;                                                       ///< Current step timer
     };
 }
+
+/// \class jop::World2D
+/// \ingroup physics2d
+
 #endif

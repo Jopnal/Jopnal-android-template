@@ -55,7 +55,7 @@ namespace jop
         SkySphere(Object& obj, Renderer& renderer, const float radius = 2.f);
 
 
-        /// \copydoc Drawable::draw(const Camera*,const LightContainer&,Shader&)
+        /// \copydoc Drawable::draw()
         ///
         void draw(const ProjectionInfo& proj, const LightContainer& lights) const override;
 
@@ -69,7 +69,7 @@ namespace jop
 
         /// \brief Get the bound map
         ///
-        /// \return Pointer to the map. Nullptr if none is bound
+        /// \return Pointer to the map. nullptr if none is bound
         ///
         const Texture* getMap() const;
 
@@ -79,5 +79,8 @@ namespace jop
         Material m_material;    ///< The material
     };
 }
+
+/// \class jop::SkySphere
+/// \ingroup graphics
 
 #endif

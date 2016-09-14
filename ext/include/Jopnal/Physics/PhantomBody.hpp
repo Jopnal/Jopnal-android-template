@@ -34,32 +34,49 @@ namespace jop
 {
     class CollisionShape;
 
-    class PhantomBody : public Collider
+    class JOP_API PhantomBody : public Collider
     {
-    private:
+    public:
 
         JOP_GENERIC_COMPONENT_CLONE(PhantomBody);
 
     public:
-
-        enum class Type
-        {
-            Static,
-            Kinematic
-        };
-
-    public:
     
-        PhantomBody(Object& object, World& world, CollisionShape& shape, const Type type);
+        /// \brief Constructor
+        ///
+        /// \param object The object to bind this component into
+        /// \param world The physics world
+        ///
+        PhantomBody(Object& object, World& world, CollisionShape& shape);
+
+        /// \brief Destructor
+        ///
+        virtual ~PhantomBody() override;
 
 
+        /// \copydoc Component::update()
+        ///
         void update(const float deltaTime) override;
+
+        /// \brief Get all the overlapping colliders
+        ///
+        /// \return The overlapping colliders
+        ///
+        std::vector<Collider*> getOverlaps();
+
+        /// \copydoc getOverlaps()
+        ///
+        std::vector<const Collider*> getOverlaps() const;
+
+        /// \brief Get the number of overlapping colliders
+        ///
+        /// \return The number of overlapping colliders
+        ///
+        unsigned int getOverlapAmount() const;
     };
 }
 
-#endif
-
-/// \class PhantomBody
+/// \class jop::PhantomBody
 /// \ingroup physics
-///
-/// #TODO Detailed description
+
+#endif

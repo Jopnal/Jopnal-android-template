@@ -27,20 +27,30 @@
 #include <Jopnal/Core/Component.hpp>
 #include <Jopnal/Graphics/RenderTexture.hpp>
 #include <glm/vec3.hpp>
+#include <set>
 
 //////////////////////////////////////////////
 
 
 namespace jop
 {
+    namespace detail
+    {
+        class CullerComponent;
+    }
     class Renderer;
     class RenderTarget;
+    class Drawable;
+    class LightSource;
+    class FrustumShape;
 
     class JOP_API Camera : public Component
     {
     private:
 
         JOP_GENERIC_COMPONENT_CLONE(Camera);
+
+        friend class detail::CullerComponent;
 
     public:
 
@@ -87,6 +97,8 @@ namespace jop
         ~Camera() override;
 
 
+        void update(const float deltaTime) override;
+
         /// \brief Get the projection matrix
         ///
         /// \return The projection matrix
@@ -113,7 +125,6 @@ namespace jop
         ///
         uint32 getRenderMask() const;
 
-
         /// \brief Set the projection mode
         ///
         /// You need to accompany this call with calls to set the camera
@@ -121,9 +132,11 @@ namespace jop
         /// Failing to set the properties will cause the projection to
         /// malfunction.
         ///
-        /// \comm setProjectionMode
-        ///
         /// \param mode The mode to be set
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setProjectionMode
         ///
         Camera& setProjectionMode(const Projection mode);
 
@@ -133,16 +146,17 @@ namespace jop
         ///
         Projection getProjectionMode() const;
 
-
         /// \brief Set the near and far clipping planes
         ///
         /// In perspective projection the clipping planes need to be positive.
         /// Otherwise, the projection result is undefined.
         ///
-        /// \comm setClippingPlanes
-        ///
         /// \param clipNear The near clipping plane
         /// \param clipFar The far clipping plane
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setClippingPlanes
         ///
         Camera& setClippingPlanes(const float clipNear, const float clipFar);
 
@@ -155,21 +169,24 @@ namespace jop
         ///
         const ClippingPlanes& getClippingPlanes() const;
 
-
         /// \brief Brief set the size of the projection
         ///
         /// In perspective mode this call is equal to calling setAspectRatio(size.x / size.y)
         ///
         /// \param size The new size of the projection
         ///
+        /// \return Reference to self
+        ///
         Camera& setSize(const glm::vec2& size);
 
         /// \brief Brief set the size of the projection
         ///
-        /// \comm setSize
-        ///
         /// \param x The width
         /// \param y The height
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setSize
         ///
         Camera& setSize(const float x, const float y);
 
@@ -185,9 +202,9 @@ namespace jop
         ///
         /// This call is only valid in perspective mode.
         ///
-        /// \comm setAspectRatio
-        ///
         /// \param ratio The new aspect ratio to be set
+        ///
+        /// \comm setAspectRatio
         ///
         Camera& setAspectRatio(const float ratio);
 
@@ -199,15 +216,16 @@ namespace jop
         ///
         float getAspectRatio() const;
 
-
         /// \brief Set the vertical field of view
         ///
         /// The minimum value is glm::radians(1) and maximum glm::radians(179).
         /// The value will be clamped inside this range.
         ///
-        /// \comm setFieldOfView
-        ///
         /// \param fovY The new field of view value
+        ///
+        /// \return Reference to self
+        ///
+        /// \comm setFieldOfView
         ///
         Camera& setFieldOfView(const float fovY);
 
@@ -217,18 +235,17 @@ namespace jop
         ///
         float getFieldOfView() const;
 
-
         /// \brief Set the view port
         ///
         /// The values are in relative coordinates. For example, [0.5,0.5] and [1.0,1.0]
-        /// will select the right half of the screen
-        ///
-        /// \comm setViewport
+        /// will select the right half of the screen.
         ///
         /// \param start The start coordinates
         /// \param end The end coordinates
         ///
         /// \return Reference to self
+        ///
+        /// \comm setViewport
         ///
         Camera& setViewport(const glm::vec2& start, const glm::vec2& end);
 
@@ -249,7 +266,6 @@ namespace jop
         ///
         void applyViewport(const RenderTarget& mainTarget) const;
 
-
         /// \brief Get the internal render texture
         ///
         /// \return Reference to the render texture
@@ -259,7 +275,6 @@ namespace jop
         /// \copydoc getRenderTexture()
         ///
         const RenderTexture& getRenderTexture() const;
-
 
         /// \brief Get a ray for mouse picking purposes
         ///
@@ -272,27 +287,40 @@ namespace jop
         ///
         glm::vec3 getPickRay(const glm::vec2& mouseCoords, const RenderTarget& target) const;
 
+        /// \brief Check if a drawable is in view
+        ///
+        /// \return True if in view
+        ///
+        bool inView(const Drawable& drawable) const;
+
     protected:
 
+        /// \copydoc Component::receiveMessage()
+        ///
         Message::Result receiveMessage(const Message& message) override;
 
     private:
 
-        mutable glm::mat4 m_projectionMatrix;   ///< The projection matrix
-        RenderTexture m_renderTexture;          ///< RenderTexture used for off-screen rendering
-        ViewPort m_viewPort;                    ///< Viewport in relative coordinates
-        ProjectionData m_projData;              ///< Union with data for orthographic and perspective projections
-        ClippingPlanes m_clippingPlanes;        ///< The clipping planes
-        Renderer& m_rendererRef;                ///< Reference to the renderer
-        uint32 m_renderMask;                    ///< The render mask
-        Projection m_mode;                      ///< Projection mode
-        mutable bool m_projectionNeedUpdate;    ///< Flag to mark if the projection needs to be updated
+        Camera& updateShape();
+
+
+        mutable glm::mat4 m_projectionMatrix;               ///< The projection matrix
+        RenderTexture m_renderTexture;                      ///< RenderTexture used for off-screen rendering
+        std::set<const Drawable*> m_drawables;              ///< Drawables currently in view
+        std::set<const LightSource*> m_lights;              ///< Lights currently in view
+        std::unique_ptr<FrustumShape> m_shape;              ///< CUlling shape
+        std::unique_ptr<detail::CullerComponent> m_culler;  ///< Culler
+        ViewPort m_viewPort;                                ///< Viewport in relative coordinates
+        ProjectionData m_projData;                          ///< Union with data for orthographic and perspective projections
+        ClippingPlanes m_clippingPlanes;                    ///< The clipping planes
+        Renderer& m_rendererRef;                            ///< Reference to the renderer
+        uint32 m_renderMask;                                ///< The render mask
+        Projection m_mode;                                  ///< Projection mode
+        mutable bool m_projectionNeedUpdate;                ///< Flag to mark if the projection needs to be updated
     };
 }
 
-#endif
-
-/// \class Camera
+/// \class jop::Camera
 /// \ingroup graphics
-///
-/// 
+
+#endif

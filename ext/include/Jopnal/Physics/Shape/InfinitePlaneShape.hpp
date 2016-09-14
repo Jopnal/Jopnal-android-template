@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API InfinitePlaneShape final : public CollisionShape
+    class JOP_API InfinitePlaneShape : public CollisionShape
     {
     public:
 
@@ -52,5 +52,8 @@ namespace jop
         bool load(const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f));
     };
 }
+
+/// \class jop::InfinitePlaneShape
+/// \ingroup physics
 
 #endif

@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API BoxShape final : public CollisionShape
+    class JOP_API BoxShape : public CollisionShape
     {
     public:
 
@@ -41,6 +41,10 @@ namespace jop
         /// \param name Name of the resource
         ///
         BoxShape(const std::string& name);
+
+        /// \brief Copy constructor
+        ///
+        BoxShape(const BoxShape& other, const std::string& newName);
 
 
         /// \brief Load this shape
@@ -60,5 +64,8 @@ namespace jop
         bool load(const glm::vec3& extents);
     };
 }
+
+/// \class jop::BoxShape
+/// \ingroup physics
 
 #endif

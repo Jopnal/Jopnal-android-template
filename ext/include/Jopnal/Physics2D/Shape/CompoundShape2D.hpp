@@ -61,4 +61,7 @@ namespace jop
     };
 }
 
+/// \class jop::CompoundShape2D
+/// \ingroup physics2d
+
 #endif

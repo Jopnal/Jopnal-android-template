@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API ConvexHullShape2D final : public CollisionShape2D
+    class JOP_API ConvexHullShape2D : public CollisionShape2D
     {
     public:
 
@@ -69,4 +69,8 @@ namespace jop
         static ConvexHullShape2D& getDefault();
     };
 }
+
+/// \class jop::ConvexHullShape2D
+/// \ingroup physics2d
+
 #endif

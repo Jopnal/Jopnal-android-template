@@ -37,7 +37,7 @@ namespace jop
     public:
         /// \brief WeldJoint constructor.
         ///
-        /// \param collide Joined bodies collide with each other.
+        /// Welds two bodies together. Moving one body moves the other in similiar way.
         ///
         WeldJoint(World& worldRef, RigidBody& bodyA, RigidBody& bodyB, const bool collide);
 
@@ -56,4 +56,8 @@ namespace jop
         float m_damping;
     };
 }
+
+/// \class jop::WeldJoint
+/// \ingroup physics
+
 #endif

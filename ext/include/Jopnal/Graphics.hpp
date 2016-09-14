@@ -20,8 +20,6 @@
 //////////////////////////////////////////////
 
 /// \defgroup graphics Graphics
-///
-/// #TODO Detailed decription
 
 // Headers
 #include <Jopnal/Graphics/Mesh/BoxMesh.hpp>
@@ -41,7 +39,6 @@
 #include <Jopnal/Graphics/MainRenderTarget.hpp>
 #include <Jopnal/Graphics/Material.hpp>
 #include <Jopnal/Graphics/Mesh/Mesh.hpp>
-#include <Jopnal/Graphics/Model.hpp>
 #include <Jopnal/Graphics/ModelLoader.hpp>
 #include <Jopnal/Graphics/PostProcessor.hpp>
 #include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
@@ -52,13 +49,13 @@
 #include <Jopnal/Graphics/ShaderAssembler.hpp>
 #include <Jopnal/Graphics/SkyBox.hpp>
 #include <Jopnal/Graphics/SkySphere.hpp>
+#include <Jopnal/Graphics/Sprite.hpp>
 #include <Jopnal/Graphics/Mesh/SphereMesh.hpp>
 #include <Jopnal/Graphics/Texture/Texture2D.hpp>
 #include <Jopnal/Graphics/Texture/TextureSampler.hpp>
 #include <Jopnal/Graphics/Transform.hpp>
 #include <Jopnal/Graphics/Vertex.hpp>
 #include <Jopnal/Graphics/VertexBuffer.hpp>
-#include <Jopnal/Graphics/ShaderPreprocessor.hpp>
 #include <Jopnal/Graphics/ShaderProgram.hpp>
 #include <Jopnal/Graphics/Glyph.hpp>
 #include <Jopnal/Graphics/Image.hpp>

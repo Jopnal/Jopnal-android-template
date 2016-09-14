@@ -31,7 +31,7 @@
 
 namespace jop
 {
-    class JOP_API ConeShape final : public CollisionShape
+    class JOP_API ConeShape : public CollisionShape
     {
     public:
 
@@ -52,5 +52,8 @@ namespace jop
         bool load(const float radius, const float height);
     };
 }
+
+/// \class jop::ConeShape
+/// \ingroup physics
 
 #endif

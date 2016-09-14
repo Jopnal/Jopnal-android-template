@@ -174,13 +174,13 @@ namespace jop
         ///
         static void setDepthWrite(const bool enable);
 
+        /// \brief Call glFlush
+        ///
         static void flush();
     };
 }
 
-#endif
-
-/// \class GlStateManager
+/// \class jop::GlStateManager
 /// \ingroup graphics
-///
-/// 
+
+#endif

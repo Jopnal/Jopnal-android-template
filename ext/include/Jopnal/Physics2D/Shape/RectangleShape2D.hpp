@@ -43,7 +43,8 @@ namespace jop
 
         /// \brief Load this shape
         ///
-        /// \param size Size of the rectangle
+        /// \param sizeX Width of the rectangle
+        /// \param sizeY Height of the rectangle
         ///
         /// \return True if successful
         ///
@@ -58,4 +59,8 @@ namespace jop
         bool load(const glm::vec2& extents);
     };
 }
+
+/// \class jop::RectangleShape2D
+/// \ingroup physics2d
+
 #endif

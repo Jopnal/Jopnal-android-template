@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/RenderTarget.hpp>
 #include <Jopnal/Graphics/Texture/Texture.hpp>
+#include <Jopnal/Graphics/Texture/Cubemap.hpp>
 #include <glm/vec2.hpp>
 #include <string>
 #include <array>
@@ -50,17 +51,17 @@ namespace jop
         ///
         enum class Slot
         {
-            Depth,
-            Stencil,
-            DepthStencil,
-            Color0,
+            Depth,          ///< Depth attachment slot
+            Stencil,        ///< Stencil attachment slot
+            DepthStencil,   ///< Depth-stencil attachment slot
+            Color0,         ///< First color attachment slot
 
-            __Count ///< For internal functionality, do not use
+            __Count         ///< For internal functionality, do not use
         };
 
     private:
 
-        typedef std::array<std::pair<unsigned int, std::unique_ptr<Texture>>, static_cast<int>(Slot::__Count)> AttachmentArray;
+        typedef std::array<std::tuple<unsigned int, std::unique_ptr<Texture>, bool>, static_cast<int>(Slot::__Count)> AttachmentArray;
 
     public:
 
@@ -75,11 +76,46 @@ namespace jop
         ~RenderTexture() override;
 
 
+        /// \brief Add a texture attachment
+        ///
+        /// This will always return false when the size hasn't been set.
+        ///
+        /// \param slot The attachment slot
+        /// \param format The texture format
+        /// 
+        /// \return True if added successfully
+        ///
+        /// \see setSize()
+        ///
         bool addTextureAttachment(const Slot slot, const Texture::Format format);
 
+        /// \brief Add a cube map attachment
+        ///
+        /// \param slot The attachment slot
+        /// \param format The cube map format
+        ///
+        /// \return True if added successfully
+        ///
+        bool addCubemapAttachment(const Slot slot, const Texture::Format format);
+
+        /// \brief Add a render buffer attachment
+        ///
+        /// This will always return false when the size hasn't been set.
+        ///
+        /// \param slot The attachment slot
+        /// \param format The render buffer format
+        /// 
+        /// \return True if added successfully
+        ///
+        /// \see getMaximumRenderbufferSize()
+        /// \see setSize()
+        ///
         bool addRenderbufferAttachment(const Slot slot, const Texture::Format format);
 
         /// \brief Destroy this frame buffer
+        ///
+        /// \param framebuffer Destroy the frame buffer object?
+        /// \param attachments Destroy the attachments?
         ///
         void destroy(const bool framebuffer, const bool attachments);
 
@@ -89,21 +125,48 @@ namespace jop
         ///
         bool bind() const override;
 
+        /// \brief Bind this frame buffer for reading
+        ///
+        /// \return True if successful
+        ///
         bool bindRead() const;
 
+        /// \copydoc bind()
+        ///
         bool bindDraw() const;
 
-        /// \brief Unbind the currently bound frame buffer
+        /// \brief Unbind the currently bound draw frame buffer
         ///
         /// Rebinds the window as the frame buffer
         ///
         static void unbind();
 
+        /// \brief Bind cube map face
+        ///
+        /// \note This will also bind the frame buffer object as the draw frame buffer
+        ///
+        /// \warning If the texture in the slot is not actually a cube map, but a regular
+        ///          2D texture, it will be bound instead
+        ///
+        /// \param slot The attachment slot
+        /// \param face The cube map face to bind
+        ///
+        /// \return True if successful
+        ///
+        bool bindCubeFace(const Slot slot, const Cubemap::Face face) const;
+
+        /// \brief Set the size for attachments
+        ///
+        /// Must be called before attempting to add attachments. Has no effect
+        /// when already called once before destroy().
+        ///
+        /// \param size The size to set
+        ///
         void setSize(const glm::uvec2& size);
 
         /// \brief Get the frame buffer texture size
         ///
-        /// \return glm::vec2 with the size
+        /// \return The size in pixels
         ///
         glm::uvec2 getSize() const override;
 
@@ -113,27 +176,40 @@ namespace jop
         ///
         bool isValid() const;
 
+        /// \brief Get a texture attachment
+        ///
+        /// \param slot The attachment slot
+        ///
+        /// \return Pointer to the texture. nullptr if none exists in the slot
+        ///
         Texture* getTextureAttachment(const Slot slot);
 
+        /// \copydoc getTextureAttachment()
+        ///
         const Texture* getTextureAttachment(const Slot slot) const;
 
+        /// \brief Get the maximum render buffer size
+        ///
+        /// \return The maximum render buffer size
+        ///
         static unsigned int getMaximumRenderbufferSize();
 
     private:
+
+        bool addTextureAttachment(const Slot slot, const Texture::Format format, const bool cube);
 
         bool attach() const;
 
         void destroy(const bool framebuffer, const bool attachments) const;
 
 
-        mutable unsigned int m_frameBuffer;
-        mutable AttachmentArray m_attachments;
-        mutable glm::uvec2 m_size;
+        mutable unsigned int m_frameBuffer;     ///< The OpenGL frame buffer handle
+        mutable AttachmentArray m_attachments;  ///< Attachments
+        mutable glm::uvec2 m_size;              ///< Size
     };
 }
 
-#endif
-
-/// \class RenderTexture
+/// \class jop::RenderTexture
 /// \ingroup graphics
-///
+
+#endif

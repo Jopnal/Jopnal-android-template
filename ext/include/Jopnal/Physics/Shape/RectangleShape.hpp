@@ -32,7 +32,7 @@
 
 namespace jop
 {
-    class JOP_API RectangleShape final : public CollisionShape
+    class JOP_API RectangleShape : public CollisionShape
     {
     public:
 
@@ -60,5 +60,8 @@ namespace jop
         bool load(const glm::vec2& extents);
     };
 }
+
+/// \class jop::RectangleShape
+/// \ingroup physics
 
 #endif

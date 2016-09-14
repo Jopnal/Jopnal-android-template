@@ -26,6 +26,7 @@
 #include <Jopnal/Header.hpp>
 #include <Jopnal/Graphics/Drawable.hpp>
 #include <Jopnal/Graphics/Material.hpp>
+#include <Jopnal/Graphics/Mesh/RectangleMesh.hpp>
 
 //////////////////////////////////////////////
 
@@ -33,35 +34,40 @@
 namespace jop
 {
     class AnimationAtlas;
-    class RectangleMesh;
 
     class JOP_API AnimatedSprite : public Drawable
     {
     public:
 
+        /// Animation status
+        ///
         enum class Status
         {
-            Playing,
-            Paused,
-            Stopped
+            Playing,    ///< Currently playing
+            Paused,     ///< Paused
+            Stopped     ///< Stopped
         };
 
     public:
 
-        /// \brief Constructor
+        /// \copydoc Drawable::Drawable(Object&, Renderer&,const bool)
         ///
-        /// \param object Reference to the object which this component is getting bound to
-        /// \param renderer Reference to the renderer
+        AnimatedSprite(Object& object, Renderer& renderer, const bool cull = true);
+
+        /// \copydoc Drawable::Drawable(Object&,Renderer&,const RenderPass::Pass,const uint32,const bool)
         ///
-        AnimatedSprite(Object& object, Renderer& renderer);
+        AnimatedSprite(Object& object, Renderer& renderer, const RenderPass::Pass pass, const uint32 weight, const bool cull = true);
 
         /// \brief Destructor
         ///
         ~AnimatedSprite();
 
+
         /// \brief Update sprite animation
         ///
-        /// Cycles through animation range with given frame time
+        /// Cycles through animation range with given frame time.
+        ///
+        /// \param deltaTime The delta time
         ///
         void update(const float deltaTime) override;
 
@@ -71,22 +77,28 @@ namespace jop
 
         /// \brief Play animation
         ///
-        void play();
+        /// \param repeats How many times to repeat the animation? Zero to repeat indefinitely
+        ///
+        void play(const unsigned int repeats = 0);
 
         /// \brief Pause animation
         ///
         void pause();
 
-        /// \brief Set animation range
+        /// \brief Set the animation range
         ///
         /// \param startIndex The first frame in the range
         /// \param endIndex The last frame in the range
         ///
+        /// \return Reference to self
+        ///
         AnimatedSprite& setAnimationRange(const uint32 startIndex, const uint32 endIndex);
 
-        /// \brief Set frame time
+        /// \brief Set the frame time
         ///
-        /// \param seconds Time taken for each frame (1 / 60 = 60FPS)
+        /// \param seconds Time taken for each frame (1.f / 60.f = 60FPS)
+        ///
+        /// \return Reference to self
         ///
         AnimatedSprite& setFrameTime(const float seconds);
 
@@ -94,23 +106,43 @@ namespace jop
         ///
         /// \param atlas Reference to the animation atlas holding the frames
         ///
+        /// \return Reference to self
+        ///
         AnimatedSprite& setAtlas(const AnimationAtlas& atlas);
 
-        /// \brief Get status (Playing / Paused / Stopped)
+        /// \brief Get status
+        ///
+        /// \return The current status
         ///
         Status getStatus() const;
+
+        /// \brief Get the remaining repeats
+        ///
+        /// \return Remaining repeats. Negative if infinite
+        ///
+        int getRemainingRepeats() const;
+
+        /// \brief Get the current animation frame
+        ///
+        /// \return The current frame
+        ///
+        unsigned int getCurrentFrame() const;
 
     private:
 
         WeakReference<const AnimationAtlas> m_atlas;    ///< Reference to the animation atlas
-        std::unique_ptr<RectangleMesh> m_mesh;          ///< Mesh to be drawn on
+        RectangleMesh m_mesh;                           ///< Mesh to be drawn on
         Material m_material;                            ///< Material to be drawn with
         std::pair<uint32, uint32> m_animationRange;     ///< Animation range (Start - End)
         float m_frameTime;                              ///< Time taken for each frame
-        float m_timer; 
+        float m_timer;                                  ///< Timer
         Status m_status;                                ///< Animation status
-        unsigned int m_currentFrame;
+        unsigned int m_currentFrame;                    ///< Current frame
+        int m_repeats;                                  ///< Remaining repeats
     };
 }
+
+/// \class jop::AnimatedSprite
+/// \ingroup graphics
 
 #endif

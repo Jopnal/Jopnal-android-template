@@ -211,9 +211,7 @@ namespace jop
         JOP_REGISTER_SERIALIZER(nameSpace, className,                                   \
         jop::detail::FuncChooser<className>::FactoryFunc(), loadFunc, saveFunc)
 
-#endif
-
-/// \class SceneLoader
+/// \class jop::Serializer
 /// \ingroup core
-///
-/// #TODO Detailed description
+
+#endif
